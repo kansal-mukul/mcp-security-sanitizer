@@ -1,0 +1,18 @@
+[project]
+name = "mcp-security-sanitizer"
+version = "0.1.0"
+description = "An MCP service and chatbot client for local secret and PII scrubbing."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=2.0.0,<3.0.0",
+    "uvicorn>=0.30.0",
+    "langchain>=1.0.0",
+    "langchain-groq>=1.0.0",
+    "langchain-mcp-adapters>=0.3.1",
+    "mcp>=1.9.0,<2.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.uv]
+package = false
