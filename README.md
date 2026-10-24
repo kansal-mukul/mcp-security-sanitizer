@@ -23,7 +23,7 @@ Python client --MCP/SSE--> local regex scrubbers
    |                         1. mask_api_keys_and_secrets
    |                         2. mask_pii_data
    v
-Sanitized text --> LangChain agent --> Groq
+Sanitized message + in-memory conversation --> LangChain agent --> Groq
 ```
 
 Sanitization uses local Python regular expressions in the MCP server and
@@ -35,6 +35,48 @@ server to loopback (`127.0.0.1`) and is intended for local development.
 The logging interceptor prints tool names and argument field names but withholds
 all argument and result contents, so it does not log unsanitized input or
 potentially sensitive sanitizer output.
+
+## Integrating another client
+
+Any client that sends user messages to an LLM should follow the same
+sanitization flow used here:
+
+1. Send each non-empty user message through `mask_api_keys_and_secrets`.
+2. Send that result through `mask_pii_data`.
+3. Send only the final sanitized text to the LLM and retain that sanitized
+   message in conversation history.
+4. If a required tool is missing, errors, or returns an unsupported result,
+   stop instead of sending the original message to the LLM.
+
+The client also uses a system prompt to reinforce how the assistant should
+handle privacy-sensitive content. Other clients can adapt this example:
+
+```text
+You are a privacy-conscious assistant. The trusted client has already invoked
+mask_api_keys_and_secrets and mask_pii_data on every user message before
+sending it here. Never request, reconstruct, infer, or repeat redacted values.
+Treat any unredacted secret or personal data as sensitive; invoke both
+sanitizer tools before using or responding to any message that contains raw
+user-provided text. Do not claim that regex scanning detects every possible
+secret or personal identifier.
+```
+
+The prompt is defense-in-depth, not a security control: an LLM may not follow
+instructions reliably. The client must enforce the tool-call order in code and
+must never fall back to sending unsanitized input. Tool names in the prompt
+must match the tools exposed by the connected MCP server.
+
+## Conversation memory
+
+The client keeps the current conversation history in memory and sends it to the
+agent along with each new sanitized message. This lets the assistant refer to
+earlier turns in the same run. `SummarizationMiddleware` summarizes older
+messages when the history reaches 3 messages and keeps the most recent 2
+messages, helping limit the context sent to the model. The history is not saved
+to disk and is cleared when the client exits. Each new user message is still
+sanitized before it is added to the conversation or passed to the agent.
+Summarization uses the configured Groq model and can make additional model
+calls when the middleware is triggered.
 
 ## Tools
 
@@ -52,6 +94,13 @@ potentially sensitive sanitizer output.
 
 ## Setup
 
+Clone the repository and change into the project directory:
+
+```bash
+git clone https://github.com/saurabhdrh/mcp-security-sanitizer.git
+cd mcp-security-sanitizer
+```
+
 From the project directory, resolve dependencies, create the project-local
 `.venv`, and write or update `uv.lock`:
 
@@ -62,15 +111,23 @@ uv sync
 You do not need to activate `.venv` when using `uv run`; it selects the
 project environment automatically.
 
-Create a `.env` file in the project directory (beside `pyproject.toml`):
+Create your local `.env` file by copying the example in the project directory
+(beside `pyproject.toml`). In Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then edit `.env` and replace the placeholder with your Groq API key:
 
 ```dotenv
 GROQ_API_KEY=your_groq_api_key
 GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-Keep `.env` out of version control. The client loads this file at startup and
-checks that `GROQ_API_KEY` is set before connecting to Groq. A `.env` placed
+The root `.gitignore` excludes `.env` from version control. The client loads
+this file at startup and checks that `GROQ_API_KEY` is set before connecting
+to Groq. A `.env` placed
 inside `.venv` is also recognized as a fallback, but the project directory is
 the recommended location because `.venv` is generated and can be deleted and
 recreated. `GROQ_MODEL` is optional; if omitted, the client uses
@@ -91,11 +148,10 @@ endpoint at `/sse`.
 
 ### Server startup screenshot
 
-The image below illustrates the expected server terminal after startup. It is
-a generated example rather than a direct screenshot from your machine; process
-IDs and log formatting can differ by FastMCP/Uvicorn version.
+The image below shows the server terminal after startup. Process IDs and log
+formatting can differ by FastMCP/Uvicorn version.
 
-![Illustrative MCP server startup terminal](./server-startup-example.svg)
+![MCP server startup terminal](./images/server-startup-example.png)
 
 In a second terminal, start the interactive chatbot:
 
@@ -206,11 +262,12 @@ Contact [REDACTED_EMAIL] at [REDACTED_PHONE]; test key [REDACTED_SECRET].
 ```
 
 The assistant reply depends on the Groq model and is not a fixed output. The
-illustration below shows the server startup and the local sanitizer calls. It
-is an example terminal view, not a raw desktop screenshot; the sanitizer check
-does not make a Groq request. Startup timestamps and process IDs vary by run.
+image below shows an illustrative client session from launch through the final
+input prompt, including a follow-up that uses conversation history. It is a
+generated terminal example, not a raw desktop screenshot. Sanitizer arguments
+and results are withheld from the client logs.
 
-![Illustrative MCP server and sanitizer client terminal output](./terminal-output-example.svg)
+![Illustrative client terminal session from startup to final prompt](./images/client-terminal-output.svg)
 
 ## Configuration and production considerations
 

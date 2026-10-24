@@ -11,6 +11,7 @@ from typing import Any
 from dotenv import load_dotenv
 from groq import GroqError
 from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware
 from langchain_groq import ChatGroq
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_mcp_adapters.interceptors import (
@@ -143,9 +144,21 @@ async def chat() -> None:
         "regex scanning detects every possible secret or personal identifier."
     )
     model = ChatGroq(model=model_name, temperature=0)
-    agent = create_agent(model, tools, system_prompt=system_message)
+    agent = create_agent(
+        model,
+        tools,
+        system_prompt=system_message,
+        middleware=[
+            SummarizationMiddleware(
+                model,
+                trigger=("messages", 3),
+                keep=("messages", 2),
+            )
+        ],
+    )
 
     print("Secure assistant ready. Type 'exit' or 'quit' to stop.")
+    conversation_history = []
     while True:
         try:
             user_text = await asyncio.to_thread(input, "\nYou: ")
@@ -162,7 +175,12 @@ async def chat() -> None:
         sanitized_text = await _sanitize_message(user_text, tools_by_name)
         try:
             response = await agent.ainvoke(
-                {"messages": [{"role": "user", "content": sanitized_text}]}
+                {
+                    "messages": [
+                        *conversation_history,
+                        {"role": "user", "content": sanitized_text},
+                    ]
+                }
             )
         except GroqError as exc:
             print(
@@ -171,6 +189,7 @@ async def chat() -> None:
                 "for your Groq account and that the API key is valid."
             )
             continue
+        conversation_history = response["messages"]
         final_message = response["messages"][-1]
         print(f"\nAssistant: {final_message.content}")
 

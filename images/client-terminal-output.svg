@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1800" viewBox="0 0 1400 1800" role="img" aria-labelledby="title desc">
+  <title id="title">MCP Security Sanitizer client terminal conversation</title>
+  <desc id="desc">Illustrative transcript matching the shared client output: greeting, name recall across turns, sanitizer activity, an appointment prompt split across two messages, a redacted phone number, and the final input prompt.</desc>
+  <rect width="1400" height="1800" fill="#0d1117"/>
+  <rect x="24" y="24" width="1352" height="1752" rx="12" fill="#0d1117" stroke="#30363d"/>
+  <path d="M24 36a12 12 0 0 1 12-12h1328a12 12 0 0 1 12 12v42H24z" fill="#21262d"/>
+  <circle cx="50" cy="48" r="7" fill="#ff7b72"/>
+  <circle cx="74" cy="48" r="7" fill="#d29922"/>
+  <circle cx="98" cy="48" r="7" fill="#3fb950"/>
+  <text x="128" y="54" fill="#c9d1d9" font-family="Consolas, 'Courier New', monospace" font-size="18">(mcp-security-sanitizer) PS D:\Ai-learning\mcp-security-sanitizer&gt; uv run client.py</text>
+
+  <g font-family="Consolas, 'Courier New', monospace" font-size="17" xml:space="preserve">
+    <text x="52" y="112" fill="#c9d1d9">Secure assistant ready. Type 'exit' or 'quit' to stop.</text>
+
+    <text x="52" y="158" fill="#c9d1d9">You: hi</text>
+    <text x="52" y="198" fill="#79c0ff">[MCP] Calling mask_api_keys_and_secrets (arguments: text)</text>
+    <text x="52" y="224" fill="#8b949e">[MCP] mask_api_keys_and_secrets completed; result content withheld.</text>
+    <text x="52" y="264" fill="#79c0ff">[MCP] Calling mask_pii_data (arguments: text)</text>
+    <text x="52" y="290" fill="#8b949e">[MCP] mask_pii_data completed; result content withheld.</text>
+    <text x="52" y="330" fill="#7ee787">Assistant: Hi! How can I help you today?</text>
+
+    <text x="52" y="376" fill="#c9d1d9">You: my name is mukul</text>
+    <text x="52" y="416" fill="#79c0ff">[MCP] Calling mask_api_keys_and_secrets (arguments: text)</text>
+    <text x="52" y="442" fill="#8b949e">[MCP] mask_api_keys_and_secrets completed; result content withheld.</text>
+    <text x="52" y="482" fill="#79c0ff">[MCP] Calling mask_pii_data (arguments: text)</text>
+    <text x="52" y="508" fill="#8b949e">[MCP] mask_pii_data completed; result content withheld.</text>
+    <text x="52" y="548" fill="#7ee787">Assistant: Hi, mukul! How can I help you today?</text>
+
+    <text x="52" y="594" fill="#c9d1d9">You: what is my name</text>
+    <text x="52" y="634" fill="#79c0ff">[MCP] Calling mask_api_keys_and_secrets (arguments: text)</text>
+    <text x="52" y="660" fill="#8b949e">[MCP] mask_api_keys_and_secrets completed; result content withheld.</text>
+    <text x="52" y="700" fill="#79c0ff">[MCP] Calling mask_pii_data (arguments: text)</text>
+    <text x="52" y="726" fill="#8b949e">[MCP] mask_pii_data completed; result content withheld.</text>
+    <text x="52" y="766" fill="#7ee787">Assistant: Your name is **Mukul**.</text>
+
+    <text x="52" y="812" fill="#c9d1d9">You: Write a friendly appointment reminder for alex@example.com and ask them to</text>
+    <text x="52" y="852" fill="#79c0ff">[MCP] Calling mask_api_keys_and_secrets (arguments: text)</text>
+    <text x="52" y="878" fill="#8b949e">[MCP] mask_api_keys_and_secrets completed; result content withheld.</text>
+    <text x="52" y="918" fill="#79c0ff">[MCP] Calling mask_pii_data (arguments: text)</text>
+    <text x="52" y="944" fill="#8b949e">[MCP] mask_pii_data completed; result content withheld.</text>
+    <text x="52" y="984" fill="#7ee787">Assistant: I can help draft a friendly appointment reminder, but your message appears to be cut off after “and ask them to.”</text>
+    <text x="52" y="1024" fill="#7ee787">Could you complete the request? For example:</text>
+    <text x="76" y="1050" fill="#7ee787">- What should the reminder include?</text>
+    <text x="76" y="1076" fill="#7ee787">- What are you asking them to do?</text>
+    <text x="76" y="1102" fill="#7ee787">- Any preferred tone, date/time, or details to mention?</text>
+
+    <text x="52" y="1148" fill="#c9d1d9">You: call (415) 555-0134 if they need to reschedule.</text>
+    <text x="52" y="1188" fill="#79c0ff">[MCP] Calling mask_api_keys_and_secrets (arguments: text)</text>
+    <text x="52" y="1214" fill="#8b949e">[MCP] mask_api_keys_and_secrets completed; result content withheld.</text>
+    <text x="52" y="1254" fill="#79c0ff">[MCP] Calling mask_pii_data (arguments: text)</text>
+    <text x="52" y="1280" fill="#8b949e">[MCP] mask_pii_data completed; result content withheld.</text>
+    <text x="52" y="1320" fill="#7ee787">Assistant: Got it. Here’s a friendly appointment reminder email draft:</text>
+    <text x="52" y="1358" fill="#7ee787">---</text>
+    <text x="52" y="1396" fill="#7ee787">Subject: Friendly Reminder: Your Upcoming Appointment</text>
+    <text x="52" y="1434" fill="#7ee787">Hi [Recipient Name],</text>
+    <text x="52" y="1472" fill="#7ee787">I hope you’re doing well! This is just a quick, friendly reminder about your upcoming appointment.</text>
+    <text x="52" y="1510" fill="#7ee787">If your plans have changed or you need to reschedule, please don’t hesitate to call [REDACTED_PHONE].</text>
+    <text x="52" y="1548" fill="#7ee787">Looking forward to seeing you!</text>
+    <text x="52" y="1586" fill="#7ee787">Best regards,</text>
+    <text x="52" y="1624" fill="#7ee787">Mukul</text>
+    <text x="52" y="1662" fill="#7ee787">---</text>
+    <text x="52" y="1700" fill="#7ee787">If you’d like, I can adjust the tone, add the appointment date/time, or include any other details.</text>
+    <text x="52" y="1750" fill="#c9d1d9">You:</text>
+  </g>
+</svg>
